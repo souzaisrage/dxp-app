@@ -14,7 +14,6 @@ Welcome to DriverXpress – your go-to application for hassle-free driver update
 ## ⚙️ Features
 * Quick Scans: Identify outdated drivers with a single click.
 * One-Click Updates: Download and install driver updates in seconds.
-* Scheduled Scans: Set up regular scans to keep your system always up to date.
 * Detailed Reports: View information on each driver and choose whether to update.
 
 ## 📥 How to Install
