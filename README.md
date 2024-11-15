@@ -22,7 +22,7 @@ Welcome to DriverXpress – your go-to application for hassle-free driver update
 * Launch DriverXpress and start updating your drivers!
 
 ## 🤝 Contributing
-We welcome contributions from the community! If you’d like to report issues, request features, or submit code, please check out our contribution guidelines.
+We welcome contributions from the community!
 
 ## 🛠️ Support
 Encountered an issue? Have questions? Feel free to open an issue or contact us directly.
