@@ -36,6 +36,7 @@
             this.listBoxDrivers = new System.Windows.Forms.ListBox();
             this.hardwareList = new System.Windows.Forms.ListBox();
             this.listBoxDriversUpdate = new System.Windows.Forms.ListBox();
+            this.btnViewLogs = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // detecthardwarebtn
@@ -73,7 +74,7 @@
             // 
             // installBtn
             // 
-            this.installBtn.Location = new System.Drawing.Point(823, 12);
+            this.installBtn.Location = new System.Drawing.Point(807, 12);
             this.installBtn.Name = "installBtn";
             this.installBtn.Size = new System.Drawing.Size(99, 23);
             this.installBtn.TabIndex = 6;
@@ -84,15 +85,15 @@
             // listBoxDrivers
             // 
             this.listBoxDrivers.FormattingEnabled = true;
-            this.listBoxDrivers.Location = new System.Drawing.Point(457, 41);
+            this.listBoxDrivers.Location = new System.Drawing.Point(338, 41);
             this.listBoxDrivers.Name = "listBoxDrivers";
-            this.listBoxDrivers.Size = new System.Drawing.Size(465, 251);
+            this.listBoxDrivers.Size = new System.Drawing.Size(568, 251);
             this.listBoxDrivers.TabIndex = 8;
             // 
             // hardwareList
             // 
             this.hardwareList.FormattingEnabled = true;
-            this.hardwareList.Location = new System.Drawing.Point(28, 41);
+            this.hardwareList.Location = new System.Drawing.Point(12, 41);
             this.hardwareList.Name = "hardwareList";
             this.hardwareList.Size = new System.Drawing.Size(320, 537);
             this.hardwareList.TabIndex = 9;
@@ -100,16 +101,28 @@
             // listBoxDriversUpdate
             // 
             this.listBoxDriversUpdate.FormattingEnabled = true;
-            this.listBoxDriversUpdate.Location = new System.Drawing.Point(457, 311);
+            this.listBoxDriversUpdate.Location = new System.Drawing.Point(338, 302);
             this.listBoxDriversUpdate.Name = "listBoxDriversUpdate";
-            this.listBoxDriversUpdate.Size = new System.Drawing.Size(465, 277);
+            this.listBoxDriversUpdate.Size = new System.Drawing.Size(568, 277);
             this.listBoxDriversUpdate.TabIndex = 10;
+            // 
+            // btnViewLogs
+            // 
+            this.btnViewLogs.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.btnViewLogs.Location = new System.Drawing.Point(549, 12);
+            this.btnViewLogs.Name = "btnViewLogs";
+            this.btnViewLogs.Size = new System.Drawing.Size(150, 23);
+            this.btnViewLogs.TabIndex = 11;
+            this.btnViewLogs.Text = "View Logs";
+            this.btnViewLogs.UseVisualStyleBackColor = false;
+            this.btnViewLogs.Click += new System.EventHandler(this.btnViewLogs_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(934, 618);
+            this.ClientSize = new System.Drawing.Size(915, 591);
+            this.Controls.Add(this.btnViewLogs);
             this.Controls.Add(this.listBoxDriversUpdate);
             this.Controls.Add(this.hardwareList);
             this.Controls.Add(this.listBoxDrivers);
@@ -117,8 +130,10 @@
             this.Controls.Add(this.checkUpdatesbtn);
             this.Controls.Add(this.installedDriversbtn);
             this.Controls.Add(this.detecthardwarebtn);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "DXP";
             this.ResumeLayout(false);
 
@@ -133,6 +148,7 @@
         private System.Windows.Forms.ListBox listBoxDrivers;
         private System.Windows.Forms.ListBox hardwareList;
         private System.Windows.Forms.ListBox listBoxDriversUpdate;
+        private System.Windows.Forms.Button btnViewLogs;
     }
 }
 

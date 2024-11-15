@@ -17,10 +17,17 @@ namespace dxpapp
     public partial class Form1 : Form
     {
         private string pcName = Environment.MachineName;
+        private bool hardwareChecked = false;
+        private LogsForm logsForm;
         public Form1()
         {
             InitializeComponent();
-            installBtn.Enabled = true;
+            installBtn.Enabled = false;
+        }
+
+        private void LogAction(string action)
+        {
+            LogManager.AddLog(action);
         }
 
         private void DetectInstalledDrivers()
@@ -262,33 +269,67 @@ namespace dxpapp
 
         private void detecthardwarebtn_Click(object sender, EventArgs e)
         {
+            LogAction("Started hardware detection.");
             MessageBox.Show("Detecting Hardware from " + pcName);
+            hardwareChecked = true;
             GetHardwareInfo();
+            LogAction("Completed hardware detection.");
         }
 
         private void installedDriversbtn_Click(object sender, EventArgs e)
         {
-            DetectInstalledDrivers();
+            if (hardwareChecked == true)
+            {
+                DetectInstalledDrivers();
+                LogAction("Detected Installed Drivers");
+            }
+            else
+            {
+                MessageBox.Show("Scan your hardware first to perform this action");
+            }
         }
 
         private void checkUpdatesbtn_Click(object sender, EventArgs e)
         {
-            try
+            if (hardwareChecked == true)
             {
-                // Disable the button and show a message
-                checkUpdatesbtn.Text = "Checking...";
-                checkUpdatesbtn.Enabled = false;
-                listBoxDriversUpdate.Items.Clear();
+                try
+                {
+                    // Disable the button and show a message
+                    checkUpdatesbtn.Text = "Checking...";
+                    checkUpdatesbtn.Enabled = false;
+                    listBoxDriversUpdate.Items.Clear();
 
-                // Use a separate thread to perform the update check
-                Thread updateThread = new Thread(CheckForDriverUpdates);
-                updateThread.Start();
+                    // Use a separate thread to perform the update check
+                    Thread updateThread = new Thread(() =>
+                    {
+                        CheckForDriverUpdates();
+
+                        // Update the UI after checking for updates
+                        this.Invoke(new Action(() =>
+                        {
+                            // Enable the install button if there are items in the listbox
+                            installBtn.Enabled = listBoxDriversUpdate.Items.Count > 0;
+
+                            // Reset the check button
+                            checkUpdatesbtn.Text = "Check for Updates";
+                            checkUpdatesbtn.Enabled = true;
+                        }));
+                    });
+                    updateThread.Start();
+                    LogAction("Searched for Updates");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Scan your hardware first to perform this action");
             }
         }
+
 
         private void installBtn_Click(object sender, EventArgs e)
         {
@@ -334,6 +375,7 @@ namespace dxpapp
                     }} else {{ 'Selected driver update not found.' }}";
 
                         RunPowerShellScript(script);
+                        LogAction($"Installed driver : {updateID}");
                     }
                     else
                     {
@@ -352,5 +394,21 @@ namespace dxpapp
                 MessageBox.Show("Please select a driver to update.");
             }
         }
+
+        private void btnViewLogs_Click(object sender, EventArgs e)
+        {
+            // Check if logsForm is null or has been disposed
+            if (logsForm == null || logsForm.IsDisposed)
+            {
+                logsForm = new LogsForm(); // Create a new instance if needed
+                logsForm.FormClosed += (s, args) => logsForm = null; // Clear reference when form is closed
+                logsForm.Show(); // Show the form
+            }
+            else
+            {
+                logsForm.BringToFront(); // Bring the existing form to the front
+            }
+        }
+
     }
 }
