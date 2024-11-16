@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-    
+using System.Windows.Forms;
+
 namespace dxpapp
 {
     public static class LogManager
@@ -35,6 +36,23 @@ namespace dxpapp
                 logs = new List<string>(File.ReadAllLines(LogFilePath));
             }
             return logs;
+        }
+
+        public static void ClearLogs()
+        {
+            try
+            {
+                // Clear the logs list in memory
+                logs.Clear();
+
+                // Delete the content of the log file
+                File.WriteAllText(LogFilePath, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                // Handle potential exceptions
+                MessageBox.Show($"Error clearing logs: {ex.Message}");
+            }
         }
     }
 }

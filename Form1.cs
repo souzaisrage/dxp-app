@@ -11,6 +11,7 @@ using WUApiLib;
 using System.Management;
 using System.Threading;
 using System.Diagnostics;
+using System.IO;
 
 namespace dxpapp
 {
@@ -410,5 +411,221 @@ namespace dxpapp
             }
         }
 
+        private long CalculateFolderSize(string folderPath)
+        {
+            long totalSize = 0;
+
+            if (Directory.Exists(folderPath))
+            {
+                // Get all files in the directory
+                string[] files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+
+                foreach (string file in files)
+                {
+                    try
+                    {
+                        FileInfo fileInfo = new FileInfo(file);
+                        totalSize += fileInfo.Length; // Add file size to the total size
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore any errors while accessing files
+                    }
+                }
+            }
+
+            return totalSize;
+        }
+
+        private void btnDeleteTempAndPrefetch_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Define the folder paths
+                string tempFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\AppData\Local\Temp";
+                string prefetchFolder = @"C:\Windows\Prefetch";
+                string tempFolder2 = @"C:\Windows\Temp";
+
+                // Calculate the total size before deleting files
+                long totalSizeBefore = 0;
+                totalSizeBefore += CalculateFolderSize(tempFolder);
+                totalSizeBefore += CalculateFolderSize(prefetchFolder);
+                totalSizeBefore += CalculateFolderSize(tempFolder2);
+
+                // Delete contents of the folders
+                DeleteFilesAndFolders(tempFolder);
+                DeleteFilesAndFolders(prefetchFolder);
+                DeleteFilesAndFolders(tempFolder2);
+
+                // Convert the total size from bytes to a human-readable format (MB)
+                double totalSizeInMB = totalSizeBefore / (1024.0 * 1024.0);
+
+                // Show a message with the total storage cleaned
+                MessageBox.Show($"Temp and Prefetch folders cleaned successfully!\n" +
+                                $"Total storage cleaned: {totalSizeInMB:F2} MB",
+                                "Success",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+
+                // Log the action
+                LogAction($"Temp and Prefetch folders cleaned. Total size cleaned: {totalSizeInMB:F2} MB");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error cleaning folders: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogAction("Error cleaning folders");
+            }
+        }
+        private void DeleteFilesAndFolders(string folderPath)
+        {
+            if (Directory.Exists(folderPath))
+            {
+                string[] files = Directory.GetFiles(folderPath);
+                string[] directories = Directory.GetDirectories(folderPath);
+
+                // Delete files
+                foreach (string file in files)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (Exception) { /* Ignore any errors, continue with others */ }
+                }
+
+                // Delete subdirectories
+                foreach (string dir in directories)
+                {
+                    try
+                    {
+                        Directory.Delete(dir, true);
+                    }
+                    catch (Exception) { /* Ignore any errors, continue with others */ }
+                }
+            }
+        }
+
+        private void RunPowerShellScriptWinUp(string scriptText)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{scriptText}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+            try
+            {
+                using (Process process = Process.Start(psi))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    string errors = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    if (!string.IsNullOrEmpty(output))
+                    {
+                        MessageBox.Show($"Output: {output}");
+                    }
+                    if (!string.IsNullOrEmpty(errors))
+                    {
+                        MessageBox.Show($"Errors: {errors}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Exception: {ex.Message}");
+            }
+        }
+
+        private void btnCleanWindowsUpdates_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Run the Disk Cleanup tool or use DISM to clean up Windows updates
+                string script = @"
+            # Run DISM to remove unused updates and cleanup
+            Dism.exe /Online /Cleanup-Image /StartComponentCleanup
+        ";
+
+                // Run the PowerShell script
+                RunPowerShellScript(script);
+
+                // Inform the user that cleanup is complete
+                MessageBox.Show("Windows Update Cleanup completed successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LogAction("Windows Update Cleanup completed successfully.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error cleaning up Windows updates: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogAction("Error cleaning up Windows updates.");
+            }
+        }
+
+        private void btnCleanRecycleBin_Click(object sender, EventArgs e)
+        {
+            CleanRecycleBin();
+        }
+
+        private void CleanRecycleBin()
+        {
+            try
+            {
+                // Run the PowerShell command to clear the Recycle Bin
+                string script = "Clear-RecycleBin -Confirm:$false -ErrorAction SilentlyContinue\r\n";
+                RunPowerShellScriptRBin(script);
+
+                // Notify the user that the Recycle Bin was cleaned successfully
+                MessageBox.Show("Recycle Bin cleaned successfully!", "Recycle Bin Cleaner", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LogAction("Recycle bin Cleaned");
+            }
+            catch (Exception ex)
+            {
+                // If there's an error, notify the user
+                MessageBox.Show($"Error cleaning Recycle Bin: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void RunPowerShellScriptRBin(string scriptText)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{scriptText}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            try
+            {
+                using (Process process = Process.Start(psi))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    string errors = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    // Check if there's any output from the PowerShell command
+                    if (!string.IsNullOrEmpty(output))
+                    {
+                        MessageBox.Show($"PowerShell Output: {output}", "PowerShell Output", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+
+                    // Check if there are any errors
+                    if (!string.IsNullOrEmpty(errors))
+                    {
+                        MessageBox.Show($"PowerShell Errors: {errors}", "PowerShell Errors", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // If there's a C# exception, show the error message
+                MessageBox.Show($"Exception: {ex.Message}", "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }

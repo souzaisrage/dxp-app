@@ -58,7 +58,40 @@ namespace dxpapp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Clear();   
+            // Check if the log file or list is empty
+            if (LogManager.GetLogs().Count == 0)
+            {
+                // If the logs are empty, show a message box
+                MessageBox.Show("There are no logs to delete.", "No Logs", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                // Show a confirmation dialog
+                DialogResult result = MessageBox.Show(
+                    "Are you sure you want to clear the logs?",
+                    "Clear Logs Confirmation",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning
+                );
+
+                // If the user clicks Yes, proceed to clear the logs
+                if (result == DialogResult.Yes)
+                {
+                    // Clear the ListBox items
+                    listBox1.Items.Clear();
+
+                    // Clear the logs in the file
+                    LogManager.ClearLogs();
+
+                    // Optionally, show a confirmation message
+                    MessageBox.Show("Logs have been cleared successfully.");
+                }
+                // If the user clicks No, do nothing
+                else
+                {
+                    MessageBox.Show("Logs not cleared.");
+                }
+            }
         }
     }
 }
